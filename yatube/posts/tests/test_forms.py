@@ -5,7 +5,7 @@ from django.urls import reverse
 import shutil
 import tempfile
 
-from ..models import Post, User, Group, Comment, Follow
+from ..models import Post, User, Group, Comment
 from ..forms import PostForm
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
@@ -164,4 +164,3 @@ class PostCreateFormTests(TestCase):
             follow=True
         )
         self.assertEqual(User.objects.count(), users_count + 1)
-

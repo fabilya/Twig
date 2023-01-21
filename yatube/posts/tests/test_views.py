@@ -459,4 +459,3 @@ class FollowTests(TestCase):
         self.assertFalse(response_il_adele.context.get('following'))
         # Проверяем, что поста Адель с таким текстом, нет в ленте подписок Ильи
         self.assertNotIn('Adele text', resp.context.get('page_obj')[0].text)
-
