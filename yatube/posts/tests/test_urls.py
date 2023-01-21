@@ -1,12 +1,10 @@
 from http import HTTPStatus
 from http.client import OK, MOVED_PERMANENTLY, FOUND, NOT_FOUND
 
-from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 
 from ..models import Post, Group
-from ...yatube.urls import handler403
 
 User = get_user_model()
 
@@ -81,6 +79,3 @@ class PostURLTests(TestCase):
         """Проверяет, что ошибка 403 вызывает кастомный шаблон"""
         response = self.guest_client.get('handler403')
         self.assertEqual(response, 'core/403.html')
-
-
-
