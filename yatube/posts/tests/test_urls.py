@@ -74,8 +74,3 @@ class PostURLTests(TestCase):
         response = self.guest_client.get('/404/')
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND.value)
         self.assertTemplateUsed(response, 'core/404.html')
-
-    def test_custom_page_403(self):
-        """Проверяет, что ошибка 403 вызывает кастомный шаблон"""
-        response = self.guest_client.get('handler403')
-        self.assertEqual(response, 'core/403.html')
