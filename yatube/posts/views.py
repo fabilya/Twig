@@ -139,7 +139,7 @@ def profile_follow(request, username):
     ).exists()
     if not follow:
         Follow.objects.create(user=request.user, author=following)
-        return redirect('posts:profile', username=username)
+    return redirect('posts:profile', username=username)
 
 
 @login_required
