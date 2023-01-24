@@ -1,4 +1,3 @@
-import datetime
 import shutil
 import tempfile
 from django.conf import settings
@@ -76,162 +75,74 @@ class PostPagesTests(TestCase):
                 self.assertIsInstance(form_field_create, expected)
                 self.assertIsInstance(form_field_edit, expected)
 
-    def test_post_detail_page_show_correct_context(self):
-        """Шаблон post_detail сформирован с правильным контекстом."""
-        response = self.authorized_client.get(reverse(
-            'posts:post_detail', kwargs={'post_id': '1'}))
-        self.assertEqual(response.context.get('post').text, 'text-example')
-        self.assertEqual(response.context.get(
-            'post').pub_date.date(), datetime.date.today())
-        self.assertEqual(response.context.get(
-            'post').author.username, 'Ilya')
-        self.assertEqual(response.context.get(
-            'post').group.title, 'test-title')
-
-    def test_index_page_show_correct_context(self):
-        """Шаблон index сформирован с правильным контекстом."""
-        response = self.authorized_client.get(reverse('posts:index'))
-        first_object = response.context['page_obj'][0]
-        post_text_0 = first_object.text
-        post_pub_date_0 = first_object.pub_date.date()
-        post_author_0 = first_object.author.username
-        post_group_0 = first_object.group.title
-        index_context = {
-            post_text_0: 'text-example',
-            post_pub_date_0: datetime.date.today(),
-            post_author_0: 'Ilya',
-            post_group_0: 'test-title'
+    def additional_test(self, request, parameter=False):
+        if parameter is False:
+            post = request.context['page_obj'][0]
+        else:
+            post = request.context['post']
+        context = {
+            post.text: self.post.text,
+            post.pub_date: self.post.pub_date,
+            post.author.username: self.post.author.username,
+            post.group.title: self.post.group.title,
         }
-        for expected, real in index_context.items():
+        for expected, real in context.items():
             with self.subTest(expected=expected):
                 self.assertEqual(expected, real)
 
-    def test_group_list_show_correct_context(self):
+    def test_index_page_show_correct_context(self):
+        """Шаблон index сформирован с правильным контекстом."""
+        self.additional_test(self.authorized_client.get(
+            reverse('posts:index')))
+
+    def test_group_list_page_show_correct_context(self):
         """Шаблон group_list сформирован с правильным контекстом."""
-        response = self.authorized_client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test-slug'}))
-        first_object = response.context['page_obj'][0]
-        post_text_0 = first_object.text
-        post_pub_date_0 = first_object.pub_date.date()
-        post_author_0 = first_object.author.username
-        post_group_0 = first_object.group.title
-        self.assertEqual(post_text_0, 'text-example')
-        self.assertEqual(post_pub_date_0, datetime.date.today())
-        self.assertEqual(post_author_0, 'Ilya')
-        self.assertEqual(post_group_0, 'test-title')
+        self.additional_test(self.authorized_client.get(
+            reverse('posts:group_list', args=[self.group.slug])))
 
     def test_profile_show_correct_context(self):
         """Шаблон profile сформирован с правильным контекстом."""
-        response = self.authorized_client.get(
-            reverse('posts:profile', kwargs={'username': 'Ilya'}))
-        first_object = response.context['page_obj'][0]
-        post_text_0 = first_object.text
-        post_pub_date_0 = first_object.pub_date.date()
-        post_author_0 = first_object.author.username
-        post_group_0 = first_object.group.title
-        self.assertEqual(post_text_0, 'text-example')
-        self.assertEqual(post_pub_date_0, datetime.date.today())
-        self.assertEqual(post_author_0, 'Ilya')
-        self.assertEqual(post_group_0, 'test-title')
+        self.additional_test(self.authorized_client.get(
+            reverse('posts:profile', args=[self.user.username])))
 
+    def test_post_detail_show_correct_context(self):
+        """Шаблон post_detail сформирован с правильным контекстом."""
+        self.additional_test(self.authorized_client.get(
+            reverse('posts:post_detail', args=[self.post.pk])), parameter=True)
 
-class PaginatorViewsTest(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.user = User.objects.create_user(username='Ilya')
-        cls.group = Group.objects.create(
-            title='test-title',
-            slug='test-slug',
-            description='test-description',
+    def test_paginator(self):
+        bulk_list = []
+        for i in range(13):
+            bulk_list.append(Post(
+                text=f'Текст {i}',
+                author=self.user,
+                group=self.group,
+            ))
+        Post.objects.bulk_create(bulk_list)
+        adresses = (
+            ('posts:index', None),
+            ('posts:group_list', self.group.slug),
+            ('posts:profile', self.user.username),
         )
-        cls.post1 = Post.objects.create(
-            author=cls.user,
-            text='text-example1',
+        number_of_posts_in_page = (
+            ('?page=1', 10),
+            ('?page=2', 4)
         )
-        cls.post2 = Post.objects.create(
-            author=cls.user,
-            text='text-example2',
-            group=cls.group,
-        )
-        cls.post3 = Post.objects.create(
-            author=cls.user,
-            text='text-example3',
-            group=cls.group,
-        )
-        cls.post4 = Post.objects.create(
-            author=cls.user,
-            text='text-example4',
-            group=cls.group,
-        )
-        cls.post5 = Post.objects.create(
-            author=cls.user,
-            text='text-example5',
-            group=cls.group,
-        )
-        cls.post6 = Post.objects.create(
-            author=cls.user,
-            text='text-example6',
-            group=cls.group,
-        )
-        cls.post7 = Post.objects.create(
-            author=cls.user,
-            text='text-example7',
-        )
-        cls.post8 = Post.objects.create(
-            author=cls.user,
-            text='text-example8',
-            group=cls.group,
-        )
-        cls.post9 = Post.objects.create(
-            author=cls.user,
-            text='text-example9',
-            group=cls.group,
-        )
-        cls.post10 = Post.objects.create(
-            author=cls.user,
-            text='text-example10',
-            group=cls.group,
-        )
-        cls.post11 = Post.objects.create(
-            author=cls.user,
-            text='text-example11',
-            group=cls.group,
-        )
-        cls.post12 = Post.objects.create(
-            author=cls.user,
-            text='text-example12',
-            group=cls.group,
-        )
-        cls.post13 = Post.objects.create(
-            author=cls.user,
-            text='text-example13',
-            group=cls.group,
-        )
-
-    def setUp(self):
-        self.authorized_client = Client()
-        self.authorized_client.force_login(self.user)
-
-    def test_first_page_contains_ten_records(self):
-        response_index = self.client.get(reverse('posts:index'))
-        response_group = self.client.get(reverse(
-            'posts:group_list', kwargs={'slug': 'test-slug'}))
-        response_profile = self.client.get(reverse(
-            'posts:profile', kwargs={'username': 'Ilya'}))
-        self.assertEqual(len(response_index.context['page_obj']), 10)
-        self.assertEqual(len(response_group.context['page_obj']), 10)
-        self.assertEqual(len(response_profile.context['page_obj']), 10)
-
-    def test_second_page_contains_n_records(self):
-        response_index = self.client.get(reverse('posts:index') + '?page=2')
-        response_group = self.client.get(reverse(
-            'posts:group_list', kwargs={'slug': 'test-slug'}) + '?page=2')
-        response_profile = self.client.get(reverse(
-            'posts:profile', kwargs={'username': 'Ilya'}) + '?page=2')
-        self.assertEqual(len(response_index.context['page_obj']), 3)
-        self.assertEqual(len(response_group.context['page_obj']), 1)
-        self.assertEqual(len(response_profile.context['page_obj']), 3)
+        for adress, argument in adresses:
+            with self.subTest(adress=adress):
+                if argument is None:
+                    for page, number in number_of_posts_in_page:
+                        with self.subTest(page=page):
+                            response = self.client.get(reverse(adress) + page)
+                            self.assertEqual(
+                                len(response.context['page_obj']), number)
+                else:
+                    for page, number in number_of_posts_in_page:
+                        with self.subTest(page=page):
+                            response = self.client.get(reverse(
+                                adress, args=[argument]) + page)
+                            self.assertEqual(
+                                len(response.context['page_obj']), number)
 
 
 class AdditionalTestCreatePost(TestCase):
@@ -328,37 +239,33 @@ class PostWithImage(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-    def test_image_context(self):
-        response_index = self.guest_client.get(
-            reverse('posts:index')
-        )
-        response_profile = self.guest_client.get(
-            reverse('posts:profile',
-                    kwargs={'username': 'Ilya'})
-        )
-        response_group = self.guest_client.get(
-            reverse('posts:group_list',
-                    kwargs={'slug': 'test-slug'})
-        )
-        response_post_detail = self.guest_client.get(
-            reverse('posts:post_detail',
-                    kwargs={'post_id': '1'})
-        )
+    def additional_image_context(self, request, parameter=False):
+        if parameter is False:
+            post = request.context['page_obj'][0]
+        else:
+            post = request.context['post']
+        context = {
+            post.image: self.post.image
+        }
+        for expected, real in context.items():
+            with self.subTest(expected=expected):
+                self.assertEqual(expected, real)
 
-        index = response_index.context['page_obj'][0]
-        profile = response_profile.context['page_obj'][0]
-        group = response_group.context['page_obj'][0]
-        detail = response_post_detail.context['post']
+    def test_image_index_show_correct_context(self):
+        self.additional_image_context(self.guest_client.get(
+            reverse('posts:index')))
 
-        post_img = index.image.name
-        post_profile = profile.image.name
-        post_group = group.image.name
-        post_detail = detail.image.name
+    def test_image_group_list_show_correct_context(self):
+        self.additional_image_context(self.guest_client.get(
+            reverse('posts:group_list', args=[self.group.slug])))
 
-        self.assertEqual(post_img, 'posts/small.gif')
-        self.assertEqual(post_profile, 'posts/small.gif')
-        self.assertEqual(post_group, 'posts/small.gif')
-        self.assertEqual(post_detail, 'posts/small.gif')
+    def test_image_profile_show_correct_context(self):
+        self.additional_image_context(self.guest_client.get(
+            reverse('posts:profile', args=[self.user.username])))
+
+    def test_image_post_detail_show_correct_context(self):
+        self.additional_image_context(self.guest_client.get(
+            reverse('posts:post_detail', args=[self.post.pk])), parameter=True)
 
 
 class IndexPostListCache(TestCase):
@@ -450,12 +357,8 @@ class FollowTests(TestCase):
                 kwargs={'username': 'Adele'}
             )
         )
-        # Проверяем, что Илья подписан на Джона
         self.assertTrue(response_il_john.context.get('following'))
         resp = self.authorized_client.get(reverse('posts:follow_index'))
-        # Проверяем, что с таким текстом, в ленте подписок есть пост Джона
         self.assertEqual(resp.context.get('page_obj')[0].text, 'Testing text')
-        # Проверяем, что Илья НЕ подписан на Адель
         self.assertFalse(response_il_adele.context.get('following'))
-        # Проверяем, что поста Адель с таким текстом, нет в ленте подписок Ильи
         self.assertNotIn('Adele text', resp.context.get('page_obj')[0].text)

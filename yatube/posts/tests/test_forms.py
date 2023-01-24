@@ -19,9 +19,9 @@ class PostCreateFormTests(TestCase):
         cls.user = User.objects.create_user(username='Ilya')
         cls.group = Group.objects.create(
             title='test-title',
-            slug='slug-title',
+            slug='slug-title'
         )
-        Post.objects.create(
+        cls.post = Post.objects.create(
             text='Тестовый текст',
             author=cls.user,
             group=cls.group
@@ -40,6 +40,7 @@ class PostCreateFormTests(TestCase):
 
     def test_create_post(self):
         posts_count = Post.objects.count()
+        new_post = Post.objects.last()
         """Валидная форма создает запись в Post."""
         small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x02\x00'
@@ -72,6 +73,8 @@ class PostCreateFormTests(TestCase):
                 image='posts/small.gif'
             ).exists()
         )
+        self.assertEqual(new_post.author, self.user)
+        self.assertEqual(new_post.group, self.group)
 
     def test_post_edit(self):
         """Валидная форма редактирования поста
@@ -81,11 +84,14 @@ class PostCreateFormTests(TestCase):
             'text': 'Измененный текст поста',
             'group': '1'
         }
-        self.authorized_client.post(
-            reverse('posts:post_edit', args='1'),
+        response = self.authorized_client.post(
+            reverse('posts:post_edit',
+                    args=[self.post.pk]),
             data=form_data,
             follow=True
         )
+        self.assertRedirects(response, reverse(
+            'posts:post_detail', args=[self.post.pk]))
         self.assertEqual(Post.objects.count(), posts_count)
         self.assertTrue(
             Post.objects.filter(
@@ -93,8 +99,11 @@ class PostCreateFormTests(TestCase):
                 group='1'
             ).exists()
         )
+        new_post = Post.objects.last()
+        self.assertEqual(new_post.author, self.user)
+        self.assertEqual(new_post.group, self.group)
 
-    def test_post_edit2(self):
+    def test_pos_edit_guest_client(self):
         """Валидная форма редактирования поста
         неавторизованного пользователя не может изменить БД"""
         form_data = {
@@ -132,7 +141,7 @@ class PostCreateFormTests(TestCase):
 
     def test_comment_post_with_guest_client(self):
         comments_count = Comment.objects.count()
-        """Валидная форма создает комментарий"""
+        """Валидная форма гостя не создает комментарий"""
         form_data = {
             'text': 'Тестовый комментарий',
         }

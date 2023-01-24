@@ -8,59 +8,63 @@
 {% endblock %}
 {% block content %}
 
-      <div class="container py-5">
-        <div class="row justify-content-center">
-          <div class="col-md-8 p-5">
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 p-5">
             <div class="card">
-              <div class="card-header">
-                {% if is_edit == True %}
-                  Редактировать пост
-                  {% else %}
+                <div class="card-header">
+                    {% if is_edit == True %}
+                    Редактировать пост
+                    {% else %}
                     Новый пост
-                {% endif %}
-              </div>
-              <div class="card-body">
-                <form method="post" enctype="multipart/form-data" action="{% url 'posts:post_create' %}">
-                  {% csrf_token %}
-                  <div class="form-group row my-3 p-3">
-                    <label>
-                      Текст поста
-                      <span class="required text-danger">*</span>
-                    </label>
-                    {{ form.text }}
-                    <small id="id_group-help" class="form-text text-muted">
-                      Текст нового поста
-                    </small>
-                  </div>
-                  <div class="form-group row my-3 p-3">
-                    <label for="id_group">
-                      Группа
-                    </label>
-                    <select name="group" class="form-control" id="id_group">
-                      {% for field in form.group %}
-                      {{ field }}
-                      {% endfor %}
-                    </select>
-                    <small id="id_group-help" class="form-text text-muted">
-                      Группа, к которой будет относиться пост
-                    </small>
-                  </div>
-                    {% for field in form.image %}
-                      {{ field }}
-                    {% endfor %}
-                  <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">
-                      {% if is_edit == True %}
-                      Добавить
-                      {% else %}
-                      Сохранить
-                      {% endif %}
-                    </button>
-                  </div>
-                </form>
-              </div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data"
+                          action="">
+                        {% csrf_token %}
+                        <div class="form-group row my-3 p-3">
+                            <label>
+                                Текст поста
+                                <span class="required text-danger">*</span>
+                            </label>
+                            {{ form.text }}
+                            <small id="id_group-help"
+                                   class="form-text text-muted">
+                                Текст нового поста
+                            </small>
+                        </div>
+                        <div class="form-group row my-3 p-3">
+                            <label for="id_group">
+                                Группа
+                            </label>
+                            <select name="group" class="form-control"
+                                    id="id_group">
+                                {% for field in form.group %}
+                                {{ field }}
+                                {% endfor %}
+                            </select>
+                            <small id="id_group-help"
+                                   class="form-text text-muted">
+                                Группа, к которой будет относиться пост
+                            </small>
+                        </div>
+                        {% for field in form.image %}
+                        {{ field }}
+                        {% endfor %}
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">
+                                {% if is_edit == True %}
+                                Сохранить
+                                {% else %}
+                                Добавить
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
+    </div>
+</div>
 {% endblock %}

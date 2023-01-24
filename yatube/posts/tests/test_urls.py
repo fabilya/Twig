@@ -1,8 +1,9 @@
 from http import HTTPStatus
-from http.client import OK, MOVED_PERMANENTLY, FOUND, NOT_FOUND
+from http.client import OK
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
+from django.urls import reverse
 
 from ..models import Post, Group
 
@@ -31,19 +32,27 @@ class PostURLTests(TestCase):
 
     def test_urls_exists_at_desired_location(self):
         """Страницы / доступны любому пользователю."""
-        url_names_exists = {
+        url_for_guest = {
             '/': OK,
             '/group/basni/': OK,
             '/profile/Ilya/': OK,
-            '/posts/1/': OK,
-            '/posts/1/edit': MOVED_PERMANENTLY,
-            '/create/': FOUND,
-            '/unexisting_page/': NOT_FOUND
+            '/posts/1/': OK
         }
-        for url, code in url_names_exists.items():
+
+        for url, code in url_for_guest.items():
             with self.subTest(url=url):
                 response = self.guest_client.get(url)
                 self.assertEqual(response.status_code, code)
+
+        response = self.authorized_client.get(reverse(
+            'posts:post_edit',
+            args=[self.post.pk])
+        )
+        response_create = self.authorized_client.get(reverse(
+            'posts:post_create')
+        )
+        self.assertEqual(response.status_code, OK)
+        self.assertEqual(response_create.status_code, OK)
 
     def test_task_list_url_redirect_anonymous_on_admin_login(self):
         """Страницы по адресу перенаправит анонимного
@@ -51,7 +60,7 @@ class PostURLTests(TestCase):
         """
         response_edit = self.guest_client.get('/posts/1/edit/', follow=True)
         response_create = self.guest_client.get('/create/', follow=True)
-        self.assertRedirects(response_edit, '/posts/1/')
+        self.assertRedirects(response_edit, '/auth/login/?next=/posts/1/edit/')
         self.assertRedirects(response_create, '/auth/login/?next=/create/')
 
     def test_urls_uses_correct_template(self):
