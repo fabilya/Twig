@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.cache import cache_page
 
 from .forms import PostForm, CommentForm
 from .models import Post, Group, User, Follow
@@ -13,25 +14,27 @@ def get_page_context(objects, request):
     paginator = Paginator(objects, POSTS_IN_PAGE)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return {
-        'page_obj': page_obj,
-    }
+    return page_obj
 
 
-# Кеширование добавил через templates (в шаблоне index)
+@cache_page(20, key_prefix='index_page')
 def index(request):
-    context = get_page_context(Post.objects.all(), request)
+    page_obj = get_page_context(Post.objects.all(), request)
+    context = {
+        'page_obj': page_obj
+    }
     return render(request, 'posts/index.html', context)
 
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.all()
+    page_obj = get_page_context(group.posts.all(), request)
     context = {
         'posts': posts,
         'group': group,
+        'page_obj': page_obj,
     }
-    context.update(get_page_context(group.posts.all(), request))
     return render(request, 'posts/group_list.html', context)
 
 
@@ -39,11 +42,12 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     following = (request.user.is_authenticated and author.following.filter(
         user=request.user).exists())
+    page_obj = get_page_context(author.posts.all(), request)
     context = {
         'author': author,
+        'page_obj': page_obj,
         'following': following
     }
-    context.update(get_page_context(author.posts.all(), request))
     return render(request, 'posts/profile.html', context)
 
 
@@ -114,7 +118,10 @@ def add_comment(request, post_id):
 @login_required
 def follow_index(request):
     post_list = Post.objects.filter(author__following__user=request.user).all()
-    context = get_page_context(post_list, request)
+    page_obj = get_page_context(post_list, request)
+    context = {
+        'page_obj': page_obj
+    }
     return render(request, 'posts/follow.html', context)
 
 
@@ -122,7 +129,7 @@ def follow_index(request):
 def profile_follow(request, username):
     following = get_object_or_404(User, username=username)
     if request.user.username != username:
-        follow, created = Follow.objects.get_or_create(
+        Follow.objects.get_or_create(
             user=request.user,
             author=following,
         )

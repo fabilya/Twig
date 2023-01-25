@@ -1,42 +1,43 @@
 {% extends 'base.html' %}
 {% load thumbnail %}
-  <head>
+<head>
     <title>
-      {% block title %}Последние обновления на сайте{% endblock %}
+        {% block title %}Последние обновления на сайте{% endblock %}
     </title>
-  </head>
-  <body>
-    <main>
-      {% block content %}
-      {% load cache %}
-      {% cache 20 index_page page_obj %}
-      <div class="container py-5">
+</head>
+<body>
+<main>
+    {% block content %}
+    <div class="container py-5">
         <h2>Последние обновления на сайте</h2>
         {% include 'posts/includes/switcher.html' %}
         {% for post in page_obj %}
-          <ul>
+        <ul>
             <li>
-              Автор: {{ post.author.get_full_name }}
+                Автор: {{ post.author.get_full_name }}
             </li>
             <li>
-              Дата публикации: {{ post.pub_date|date:"d E Y" }}
+                Дата публикации: {{ post.pub_date|date:"d E Y" }}
             </li>
-          </ul>
-              {% thumbnail post.image "300x300" as im %}
-                  <img src="{{ im.url }}">
-              {% endthumbnail %}
-          <p>{{ post.text }}</p>
-          <a href="{% url 'posts:post_detail' post.pk %}">подробная информация </a>
-            {% if post.group %}
-          <p>
-              <a href="{% url 'posts:group_list' post.group.slug %}">Все записи группы {{post.group.title}}</a>
-          </p>
-          {% endif %}
-          {% if not forloop.last %}<hr>{% endif %}
+        </ul>
+        {% thumbnail post.image "300x300" as im %}
+        <img src="{{ im.url }}">
+        {% endthumbnail %}
+        <p>{{ post.text }}</p>
+        <a href="{% url 'posts:post_detail' post.pk %}">подробная
+            информация </a>
+        {% if post.group %}
+        <p>
+            <a href="{% url 'posts:group_list' post.group.slug %}">Все записи
+                группы {{post.group.title}}</a>
+        </p>
+        {% endif %}
+        {% if not forloop.last %}
+        <hr>
+        {% endif %}
         {% endfor %}
-      </div>
-      {% include 'posts/includes/paginator.html' %}
-      {% endcache %}
-      {% endblock %}
-    </main>
-  </body>
+    </div>
+    {% include 'posts/includes/paginator.html' %}
+    {% endblock %}
+</main>
+</body>

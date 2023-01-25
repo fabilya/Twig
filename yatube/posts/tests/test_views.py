@@ -32,6 +32,7 @@ class PostPagesTests(TestCase):
         )
 
     def setUp(self):
+        cache.clear()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
@@ -172,6 +173,7 @@ class AdditionalTestCreatePost(TestCase):
         )
 
     def setUp(self):
+        cache.clear()
         self.authorized_client = Client()
 
     def test_create_another_post_with_group(self):
@@ -189,14 +191,14 @@ class AdditionalTestCreatePost(TestCase):
             'posts:profile', kwargs={'username': 'Vasya'}))
         response_another_group = self.authorized_client.get(reverse(
             'posts:group_list', kwargs={'slug': 'test-slug2'}))
-        self.assertEqual(len(response_index.context.get(
-            'page_obj').object_list), 2)
-        self.assertEqual(len(response_group.context.get(
-            'page_obj').object_list), 1)
-        self.assertEqual(len(response_profile.context.get(
-            'page_obj').object_list), 1)
-        self.assertEqual(len(response_another_group.context.get(
-            'page_obj').object_list), 0)
+        self.assertEqual(len(
+            response_index.context['page_obj'].object_list), 2)
+        self.assertEqual(len(
+            response_group.context['page_obj'].object_list), 1)
+        self.assertEqual(len(
+            response_profile.context['page_obj'].object_list), 1)
+        self.assertEqual(len(
+            response_another_group.context['page_obj'].object_list), 0)
 
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
@@ -235,6 +237,7 @@ class PostWithImage(TestCase):
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
+        cache.clear()
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
