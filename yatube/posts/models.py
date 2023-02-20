@@ -18,7 +18,7 @@ class Post(models.Model):
     """Модель для постов."""
     text = models.TextField(
         'Текст поста',
-        help_text='Введите текст поста'
+        help_text='Введите текст поста',
     )
     pub_date = models.DateTimeField(
         'Дата публикации',

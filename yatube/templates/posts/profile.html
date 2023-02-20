@@ -21,7 +21,7 @@
         </a>
         {% else %}
         <a
-                class="btn btn-sm btn-primary"
+                class="btn btn-sm btn-primary my-3"
                 href="{% url 'posts:profile_follow' author.username %}"
                 role="button"
         >
@@ -43,14 +43,14 @@
             {% thumbnail post.image "500x500" as im %}
             <img src="{{ im.url }}">
             {% endthumbnail %}
-            <p>{{ post.text }}</p>
+            <p>{{ post.text | linebreaks }}</p>
             <a href="{% url 'posts:post_detail' post.pk %}">подробная
                 информация </a>
         </article>
         {% if post.group %}
         <p>
             <a href="{% url 'posts:group_list' post.group.slug %}">все записи
-                группы "{{ post.group }}"</a>
+                группы: "{{ post.group }}"</a>
         </p>
         {% endif %}
         {% if not forloop.last %}
