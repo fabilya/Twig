@@ -149,4 +149,4 @@ dmypy.json
 # папки со статикой и медиа
 yatube/posts/static/
 yatube/media/
-
+.github
