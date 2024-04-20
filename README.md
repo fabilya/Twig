@@ -1,5 +1,3 @@
-# "Twig" - social network for everyone
-
 ## Table of content
 
 - [Description](#description)
