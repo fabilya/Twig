@@ -54,7 +54,7 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-ROOT_URLCONF = 'yatube.urls'
+ROOT_URLCONF = 'twig.urls'
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 TEMPLATES = [
@@ -74,7 +74,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'yatube.wsgi.application'
+WSGI_APPLICATION = 'twig.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases

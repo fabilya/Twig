@@ -184,7 +184,8 @@ class TestGroup:
         description = 'Тестовое описание группы'
 
         assert Group.objects.count() == 0
-        group = Group.objects.create(title=title, slug=slug, description=description)
+        group = Group.objects.create(title=title, slug=slug,
+                                     description=description)
         assert Group.objects.count() == 1
         assert Group.objects.get(slug=slug).pk == group.pk
 
@@ -267,7 +268,7 @@ class TestCustomErrorPages:
         )
 
         try:
-            from yatube.urls import handler404 as handler404_student
+            from twig.urls import handler404 as handler404_student
         except ImportError:
             assert False, (
                 f'Убедитесь, что для страниц, возвращающих код {code}, '
@@ -279,7 +280,7 @@ class TestCustomErrorPages:
         code = 403
 
         try:
-            from yatube.urls import handler403
+            from twig.urls import handler403
         except ImportError:
             assert False, (
                 f'Убедитесь, что для страниц, возвращающих код {code}, '
