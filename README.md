@@ -4,6 +4,8 @@
 
 - [Description](#description)
 - [Technologies](#technologies)
+- [Dev-mode](#running-a-project-in-dev-mode)
+- [Authors](#authors)
 
 ### Description
 
@@ -89,7 +91,7 @@ DEBUG=True
 
 * `python yatube/manage.py runserver localhost:80`
 
-### Author:
+### Authors:
 
 [Ilya Fabiyanskiy](https://github.com/fabilya)
 
