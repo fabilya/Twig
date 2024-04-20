@@ -1,4 +1,4 @@
-![logo](https://github.com/fabilya/Fabilya/assets/105780672/38c36586-8a27-465d-a725-ae4e27a81521)
+![logo](https://github.com/fabilya/Fabilya/assets/105780672/f182b1e5-c20d-4d41-ac76-83c0d61bc846)
 
 ## Table of content
 
