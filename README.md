@@ -70,13 +70,13 @@ pip install -r requirements.txt
 * Apply migrations:
 
 ```
-python yatube/manage.py makemigrations
-python yatube/manage.py migrate
+python twig/manage.py makemigrations
+python twig/manage.py migrate
 ```
 
 * Create a superuser:
 
-`python yatube/manage.py createsuperuser`
+`python twig/manage.py createsuperuser`
 
 * In the folder with the project, where the settings.py file is, add the .env
   file where we register our parameters:
@@ -89,7 +89,7 @@ DEBUG=True
 
 * Start the project:
 
-* `python yatube/manage.py runserver localhost:80`
+* `python twig/manage.py runserver localhost:80`
 
 ### Authors:
 
