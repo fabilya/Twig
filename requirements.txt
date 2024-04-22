@@ -1,7 +1,7 @@
 Django==2.2.16
 django-debug-toolbar==3.2.4
 mixer==7.1.2
-Pillow==9.3.0
+Pillow==10.3.0
 pytest==6.2.4
 pytest-django==4.4.0
 pytest-pythonpath==0.7.3
